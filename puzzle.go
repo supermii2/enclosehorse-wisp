@@ -382,11 +382,11 @@ func (p *Puzzle) calculateScore() int {
 		if cell == '.' || cell == 'H' {
 			score += 1
 		} else if cell == 'C' {
-			score += 3
+			score += 4
 		} else if cell == 'S' {
-			score -= 5
+			score -= 4
 		} else if cell == 'G' {
-			score += 10
+			score += 11
 		}
 	}
 	return score
