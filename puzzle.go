@@ -387,6 +387,7 @@ func (p *Puzzle) calculateScore() int {
 			score -= 5
 		} else if cell == 'G' {
 			score += 10
+		}
 	}
 	return score
 }
