@@ -53,6 +53,7 @@ func (p *Puzzle) RenderMap() {
 	}
 	fmt.Print("  ")
 	for i := 0; i < len(p.MapData[0]); i++ {
+		fmt.Print(" ")
 		fmt.Printf("%c", 'A'+i)
 	}
 	fmt.Println()
