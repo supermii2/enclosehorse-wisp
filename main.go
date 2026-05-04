@@ -1,0 +1,82 @@
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+	"time"
+)
+
+func main() {
+	// Get today's date in YYYY-MM-DD format
+	now := time.Now()
+	dateStr := now.Format("2006-01-02")
+	fmt.Printf("Using date string: %s\n", dateStr)
+	url := fmt.Sprintf("https://enclose.horse/api/daily/%s", dateStr)
+
+	puzzle, err := getPuzzleFromAPI(url)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error fetching puzzle: %v\n", err)
+		os.Exit(1)
+	}
+
+	puzzle.RenderMap()
+
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Print("Enter command: ")
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			continue
+		}
+		line = strings.TrimSpace(line)
+		fields := splitFields(line)
+		var command, param string
+		if len(fields) > 0 {
+			command = fields[0]
+		}
+		if len(fields) > 1 {
+			param = fields[1]
+		}
+		n := len(fields)
+
+		switch command {
+		case "add":
+			if n < 2 {
+				fmt.Println("Invalid input format. Use: add [location] (e.g., add A1)")
+				continue
+			}
+			puzzle.placeWall(param)
+			puzzle.RenderMap()
+		case "remove":
+			if n < 2 {
+				fmt.Println("Invalid input format. Use: remove [location] (e.g., remove A1)")
+				continue
+			}
+			puzzle.removeWall(param)
+			puzzle.RenderMap()
+		case "submit":
+			if n < 1 {
+				fmt.Println("Invalid input format. Use: submit")
+				continue
+			}
+			fmt.Println("Submitting puzzle...")
+			optimalScore, err := puzzle.submitPuzzle()
+			if err != nil {
+				fmt.Printf("Submit failed: %v\n", err)
+			} else {
+				userScore := puzzle.calculateScore()
+				fmt.Printf("Submit successful! Your score: %d, Optimal Score: %d\n", userScore, optimalScore)
+				os.Exit(0)
+			}
+		default:
+			fmt.Println("Unknown command.")
+		}
+	}
+}
+
+// splitFields splits a string by spaces or tabs, handling multiple spaces
+func splitFields(s string) []string {
+	return strings.Fields(s)
+}
