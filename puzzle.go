@@ -80,6 +80,10 @@ func (p *Puzzle) RenderMap() {
 					fmt.Print("🍒")
 				case 'H':
 					fmt.Print("🐎")
+				case 'S':
+					fmt.Print("🐝")
+				case 'G':
+					fmt.Print("🍏")
 				default:
 					fmt.Printf(" %c", cell)
 				}
@@ -379,7 +383,10 @@ func (p *Puzzle) calculateScore() int {
 			score += 1
 		} else if cell == 'C' {
 			score += 3
-		}
+		} else if cell == 'S' {
+			score -= 5
+		} else if cell == 'G' {
+			score += 10
 	}
 	return score
 }
