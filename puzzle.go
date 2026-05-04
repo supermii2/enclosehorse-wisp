@@ -68,15 +68,19 @@ func (p *Puzzle) RenderMap() {
 				}
 			}
 			if isWall {
-				fmt.Print("#")
+				fmt.Print("🞮")
 			} else {
 				switch cell {
 				case '~':
-					fmt.Print("~")
+					fmt.Print("⬛")
 				case '.':
-					fmt.Print(".")
+					fmt.Print(" .")
+				case 'C':
+					fmt.Print("🍒")
+				case 'H':
+					fmt.Print("🐎")
 				default:
-					fmt.Printf("%c", cell)
+					fmt.Printf(" %c", cell)
 				}
 			}
 		}
