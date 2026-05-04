@@ -42,21 +42,21 @@ func main() {
 		n := len(fields)
 
 		switch command {
-		case "add":
+		case "add", "a":
 			if n < 2 {
 				fmt.Println("Invalid input format. Use: add [location] (e.g., add A1)")
 				continue
 			}
 			puzzle.placeWall(param)
 			puzzle.RenderMap()
-		case "remove":
+		case "remove", "r":
 			if n < 2 {
 				fmt.Println("Invalid input format. Use: remove [location] (e.g., remove A1)")
 				continue
 			}
 			puzzle.removeWall(param)
 			puzzle.RenderMap()
-		case "submit":
+		case "submit", "s":
 			if n < 1 {
 				fmt.Println("Invalid input format. Use: submit")
 				continue

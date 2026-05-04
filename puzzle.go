@@ -69,7 +69,7 @@ func (p *Puzzle) RenderMap() {
 				}
 			}
 			if isWall {
-				fmt.Print("🞮")
+				fmt.Print("🞮 ")
 			} else {
 				switch cell {
 				case '~':
