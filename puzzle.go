@@ -400,7 +400,7 @@ func (p *Puzzle) calculateScore() int {
 	}
 
 	if onEdge {
-		return 0 // Not enclosed, no score
+		return -1 << 31 // Not enclosed, negative infinity
 	}
 
 	score := 0
