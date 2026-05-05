@@ -101,11 +101,15 @@ func (p *Puzzle) RenderMap() {
 	}
 
 	score := p.calculateScore()
+	scoreStr := fmt.Sprintf("%d", score)
+	if score == -1<<31 {
+		scoreStr = "N/A"
+	}
 	bestScoreStr := fmt.Sprintf("%d", p.bestScore)
 	if p.bestScore == -1<<31 {
 		bestScoreStr = "N/A"
 	}
-	fmt.Printf("Score (enclosed area): %d | Walls used: %d/%d | Best score: %s\n", score, len(p.walls), p.Budget, bestScoreStr)
+	fmt.Printf("Score (enclosed area): %s | Walls used: %d/%d | Best score: %s\n", scoreStr, len(p.walls), p.Budget, bestScoreStr)
 }
 
 func (p *Puzzle) placeWall(loc string) {
