@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"strings"
@@ -9,9 +10,15 @@ import (
 )
 
 func main() {
-	// Get today's date in YYYY-MM-DD format
-	now := time.Now()
-	dateStr := now.Format("2006-01-02")
+	dateFlag := flag.String("date", "", "Date to fetch puzzle for (YYYY-MM-DD). Defaults to today.")
+	flag.Parse()
+
+	var dateStr string
+	if *dateFlag != "" {
+		dateStr = *dateFlag
+	} else {
+		dateStr = time.Now().Format("2006-01-02")
+	}
 	fmt.Printf("Using date string: %s\n", dateStr)
 	url := fmt.Sprintf("https://enclose.horse/api/daily/%s", dateStr)
 
