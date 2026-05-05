@@ -93,7 +93,14 @@ func (p *Puzzle) RenderMap() {
 				case 'G':
 					fmt.Print("🍏")
 				default:
-					fmt.Printf(" %c", cell)
+					portalColors := []string{"🔴", "🟠", "🟡", "🟢", "🔵", "🟣", "🟤", "⚫", "⚪", "🔶"}
+					if cell >= '0' && cell <= '9' {
+						fmt.Print(portalColors[cell-'0'])
+					} else if cell >= 'a' && cell <= 'z' {
+						fmt.Printf(" %c", 'ⓐ'+rune(cell-'a'))
+					} else {
+						fmt.Printf(" %c", cell)
+					}
 				}
 			}
 		}
