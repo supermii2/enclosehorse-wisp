@@ -45,7 +45,49 @@ A Go CLI client for the Enclose.Horse puzzle game.
 
 - Go 1.18 or later
 
+
+
+## Build Instructions
+
+### Linux/macOS
+
+To build the CLI binary:
+
+```
+go build -o horse
+```
+
+This will create an executable named `horse` in the current directory. You can move it to a directory in your PATH, for example:
+
+```
+sudo mv horse /usr/local/bin/
+```
+
+### Windows
+
+To build the CLI binary for Windows:
+
+```
+go build -o horse.exe
+```
+
+This will create `horse.exe` in your current directory. You can run it from the Command Prompt or PowerShell:
+
+```
+horse.exe
+```
+
+To run from any location, add the directory containing `horse.exe` to your system PATH.
+
 ## Usage
+
+Run the program with:
+
+```
+horse
+```
+
+Or, if you prefer to run without building:
 
 ```
 go run .
