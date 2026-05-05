@@ -259,79 +259,9 @@ func (p *Puzzle) submitPuzzle() (int, error) {
 	return respData.Stats.OptimalScore, nil
 }
 
-// verifyPuzzleSolve returns true if 'H' is orthogonally connected to the edge via '.' or 'C'
+// verifyPuzzleSolve returns true if H is enclosed (calculateScore != negative infinity)
 func (p *Puzzle) verifyPuzzleSolve() bool {
-	rows := len(p.MapData)
-	if rows == 0 {
-		return false
-	}
-	cols := len(p.MapData[0])
-
-	// Find 'H'
-	var startRow, startCol int
-	found := false
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
-			if p.MapData[i][j] == 'H' {
-				startRow, startCol = i, j
-				found = true
-				break
-			}
-		}
-		if found {
-			break
-		}
-	}
-	if !found {
-		return false
-	}
-
-	// Prepare visited matrix
-	visited := make([][]bool, rows)
-	for i := range visited {
-		visited[i] = make([]bool, cols)
-	}
-
-	// Build a set of wall indices for fast lookup
-	wallSet := make(map[int]struct{}, len(p.walls))
-	for _, w := range p.walls {
-		wallSet[w] = struct{}{}
-	}
-
-	// BFS from H
-	type point struct{ r, c int }
-	queue := []point{{startRow, startCol}}
-	visited[startRow][startCol] = true
-
-	directions := [][2]int{{-1,0},{1,0},{0,-1},{0,1}} // up, down, left, right
-
-	for len(queue) > 0 {
-		curr := queue[0]
-		queue = queue[1:]
-
-		// If we reach the edge, H is not enclosed
-		if curr.r == 0 || curr.r == rows-1 || curr.c == 0 || curr.c == cols-1 {
-			return false
-		}
-
-		// Explore neighbors
-		for _, d := range directions {
-			nr, nc := curr.r+d[0], curr.c+d[1]
-			if nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] {
-				idx := nr*cols + nc
-				if _, isWall := wallSet[idx]; isWall {
-					continue // treat as blocked
-				}
-				cell := p.MapData[nr][nc]
-				if cell == '.' || cell == 'C' {
-					visited[nr][nc] = true
-					queue = append(queue, point{nr, nc})
-				}
-			}
-		}
-	}
-	// If we never reach the edge, H is enclosed
-	return true
+	return p.calculateScore() != -1<<31
 }
 
 // calculateScore returns the total number of '.' in the enclosed area, with 'C' worth 3 points
