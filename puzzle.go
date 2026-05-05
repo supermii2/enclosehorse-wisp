@@ -117,6 +117,8 @@ func (p *Puzzle) placeWall(loc string) {
 		fmt.Println("Wall budget reached. Cannot add more walls.")
 		return
 	}
+	// Convert to uppercase for column letters
+	loc = strings.ToUpper(loc)
 	// Split the string into alpha and numeric parts
 	i := 0
 	for ; i < len(loc); i++ {
@@ -159,11 +161,12 @@ func (p *Puzzle) placeWall(loc string) {
 }
 
 func (p *Puzzle) removeWall(loc string) {
+	// Convert to uppercase for column letters
+	loc = strings.ToUpper(loc)
 	// Split the string into alpha and numeric parts
 	i := 0
 	for ; i < len(loc); i++ {
-		if unicode.IsDigit(
-			rune(loc[i])) {
+		if unicode.IsDigit(rune(loc[i])) {
 			break
 		}
 	}
