@@ -297,12 +297,26 @@ func (p *Puzzle) calculateScore() int {
 		wallSet[w] = struct{}{}
 	}
 
+	// Build portal map: character -> all positions with that character
+	type point struct{ r, c int }
+	isPortal := func(cell rune) bool {
+		return (cell >= '0' && cell <= '9') || (cell >= 'a' && cell <= 'z')
+	}
+	portalPositions := make(map[rune][]point)
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			cell := p.MapData[i][j]
+			if isPortal(cell) {
+				portalPositions[cell] = append(portalPositions[cell], point{i, j})
+			}
+		}
+	}
+
 	// BFS to find all cells in the enclosed area
 	visited := make([][]bool, rows)
 	for i := range visited {
 		visited[i] = make([]bool, cols)
 	}
-	type point struct{ r, c int }
 	queue := []point{{startRow, startCol}}
 	visited[startRow][startCol] = true
 
@@ -320,6 +334,17 @@ func (p *Puzzle) calculateScore() int {
 			onEdge = true
 		}
 
+		// If this cell is a portal, teleport to all matching portal cells
+		currCell := p.MapData[curr.r][curr.c]
+		if isPortal(currCell) {
+			for _, dest := range portalPositions[currCell] {
+				if !visited[dest.r][dest.c] {
+					visited[dest.r][dest.c] = true
+					queue = append(queue, dest)
+				}
+			}
+		}
+
 		for _, d := range directions {
 			nr, nc := curr.r+d[0], curr.c+d[1]
 			if nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] {
@@ -328,7 +353,7 @@ func (p *Puzzle) calculateScore() int {
 					continue
 				}
 				cell := p.MapData[nr][nc]
-				if cell == '.' || cell == 'C' {
+				if cell == '.' || cell == 'C' || isPortal(cell) {
 					visited[nr][nc] = true
 					queue = append(queue, point{nr, nc})
 				}
@@ -343,15 +368,10 @@ func (p *Puzzle) calculateScore() int {
 	score := 0
 	for _, pt := range area {
 		cell := p.MapData[pt.r][pt.c]
-		if cell == '.' || cell == 'H' {
-			score += 1
-		} else if cell == 'C' {
-			score += 4
-		} else if cell == 'S' {
-			score -= 4
-		} else if cell == 'G' {
-			score += 11
-		}
+		score += 1
+		if cell == 'C' { score += 3 }
+		if cell == 'S' { score -= 5 }
+		if cell == 'G' { score += 10 }
 	}
 	return score
 }
