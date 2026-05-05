@@ -56,6 +56,10 @@ func main() {
 			}
 			puzzle.removeWall(param)
 			puzzle.RenderMap()
+		case "b":
+			puzzle.ReloadBestWalls()
+			fmt.Println("Reloaded best walls.")
+			puzzle.RenderMap()
 		case "submit", "s":
 			if n < 1 {
 				fmt.Println("Invalid input format. Use: submit")

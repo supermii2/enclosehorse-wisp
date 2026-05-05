@@ -19,7 +19,10 @@ type Puzzle struct {
 	Name        string    `json:"name"`
 	Description *string   `json:"description"`
 	CreatorName *string   `json:"creatorName"`
-	walls           []int
+	walls       []int
+	bestScore    int
+	bestWalls    []int
+
 }
 
 func getPuzzleFromAPI(url string) (*Puzzle, error) {
@@ -44,6 +47,11 @@ func getPuzzleFromAPI(url string) (*Puzzle, error) {
 	for _, line := range lines {
 		puzzle.MapData = append(puzzle.MapData, []rune(line))
 	}
+
+	// Initialize bestScore to negative infinity and bestWalls
+	puzzle.bestScore = -1 << 31
+	puzzle.bestWalls = []int{}
+	
 	return &puzzle, nil
 }
 
@@ -93,7 +101,11 @@ func (p *Puzzle) RenderMap() {
 	}
 
 	score := p.calculateScore()
-	fmt.Printf("Score (enclosed area): %d\n", score)
+	bestScoreStr := fmt.Sprintf("%d", p.bestScore)
+	if p.bestScore == -1<<31 {
+		bestScoreStr = "N/A"
+	}
+	fmt.Printf("Score (enclosed area): %d | Walls used: %d/%d | Best score: %s\n", score, len(p.walls), p.Budget, bestScoreStr)
 }
 
 func (p *Puzzle) placeWall(loc string) {
@@ -132,6 +144,14 @@ func (p *Puzzle) placeWall(loc string) {
 	idx := len(p.MapData[0])*row + col
 	fmt.Printf("Placing wall at index: %d (row %d, col %d)\n", idx, row, col)
 	p.walls = append(p.walls, idx)
+
+	// Calculate score and update bestScore/bestWalls if improved
+	score := p.calculateScore()
+	if score > p.bestScore || len(p.bestWalls) == 0 {
+		p.bestScore = score
+		p.bestWalls = append([]int(nil), p.walls...)
+		fmt.Printf("New best score: %d\n", p.bestScore)
+	}
 }
 
 func (p *Puzzle) removeWall(loc string) {
@@ -170,6 +190,13 @@ func (p *Puzzle) removeWall(loc string) {
 			found = true
 			break
 		}
+	}
+	// Calculate score and update bestScore/bestWalls if improved
+	score := p.calculateScore()
+	if score > p.bestScore || len(p.bestWalls) == 0 {
+		p.bestScore = score
+		p.bestWalls = append([]int(nil), p.walls...)
+		fmt.Printf("New best score: %d\n", p.bestScore)
 	}
 	if found {
 		fmt.Printf("Removed wall at index: %d (row %d, col %d)\n", idx, row, col)
@@ -390,4 +417,9 @@ func (p *Puzzle) calculateScore() int {
 		}
 	}
 	return score
+}
+
+// ReloadBestWalls sets the current walls to the bestWalls found so far
+func (p *Puzzle) ReloadBestWalls() {
+	p.walls = append([]int(nil), p.bestWalls...)
 }
