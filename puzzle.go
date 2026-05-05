@@ -358,7 +358,7 @@ func (p *Puzzle) calculateScore() int {
 		}
 	}
 	if !found {
-		return 0
+		return -1 << 31
 	}
 
 	// Build a set of wall indices for fast lookup
