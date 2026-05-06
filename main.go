@@ -11,6 +11,7 @@ import (
 
 func main() {
 	dateFlag := flag.String("date", "", "Date to fetch puzzle for (YYYY-MM-DD). Defaults to today.")
+	flag.StringVar(dateFlag, "D", "", "Date to fetch puzzle for (YYYY-MM-DD). Defaults to today.")
 	bonusFlag := flag.Bool("bonus", false, "Load the bonus level instead of the regular level.")
 	flag.BoolVar(bonusFlag, "B", false, "Load the bonus level instead of the regular level.")
 	flag.Parse()
@@ -78,7 +79,7 @@ func main() {
 			}
 			puzzle.removeWall(param)
 			puzzle.RenderMap()
-		case "b":
+		case "b", "best":
 			puzzle.ReloadBestWalls()
 			fmt.Println("Reloaded best walls.")
 			puzzle.RenderMap()
