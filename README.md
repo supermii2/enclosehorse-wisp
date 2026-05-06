@@ -27,7 +27,7 @@ horse [flags]
 
 | Flag | Description |
 |------|-------------|
-| `-date YYYY-MM-DD` | Load the puzzle for a specific date. Defaults to today. |
+| `-date YYYY-MM-DD`, `-D YYYY-MM-DD` | Load the puzzle for a specific date. Defaults to today. |
 | `-bonus`, `-B` | Load the bonus variant of the daily puzzle. Errors if no bonus is available. |
 
 ### Examples
@@ -35,6 +35,7 @@ horse [flags]
 ```
 horse                        # today's puzzle
 horse -date 2026-05-01       # puzzle from May 1 2026
+horse -D 2026-05-01          # same, using short flag
 horse -bonus                 # today's bonus puzzle
 horse -B -date 2026-05-01    # bonus puzzle from May 1 2026
 ```
@@ -45,7 +46,7 @@ horse -B -date 2026-05-01    # bonus puzzle from May 1 2026
 |---------|-------|-------------|
 | `add [location]` | `a` | Add a wall at the given location (e.g. `add A1`, `a b2`). |
 | `remove [location]` | `r` | Remove a wall at the given location. |
-| `b` | | Reload the best wall configuration found so far. |
+| `best` |`b` | Reload the best wall configuration found so far. |
 | `submit` | `s` | Submit your current solution and display your score vs. optimal. |
 
 ## Symbols
@@ -57,6 +58,7 @@ horse -B -date 2026-05-01    # bonus puzzle from May 1 2026
 | ` .` | Empty cell |
 | `🍒` | Cherry (`C`) |
 | `🐎` | Horse (`H`) |
+| `🦄` | Unicorn (`U`) |
 | `🐝` | Bee (`S`) |
 | `🍏` | Apple (`G`) |
 
@@ -78,7 +80,7 @@ If the enclosed area touches the edge of the grid, the score is `N/A`.
 | Bonus Type | Additional Rules |
 |------------|-----------------|
 | `costlywalls` | Each wall placed costs −6 points. |
-| `lovebirds` | Both `H` (horse) and `U` must be enclosed in the same connected area. If either is missing or not co-enclosed, the score is `N/A`. |
+| `lovebirds` | Both `H` (horse) and `U` (unicorn) must be enclosed in the same connected area. If either is missing or not co-enclosed, the score is `N/A`. |
 
 ## Requirements
 
