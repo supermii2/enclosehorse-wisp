@@ -393,9 +393,124 @@ func (p *Puzzle) calculateBonusScore() int {
 	switch *p.BonusType {
 	case "costlywalls":
 		return p.calculateCostlyWallsScore()
+	case "lovebirds":
+		return p.calculateLoveBirdsScore()
 	default:
 		return p.calculateScore()
 	}
+}
+
+// calculateLoveBirdsScore works like calculateScore but requires both 'H' and 'U' to be
+// enclosed in the same connected area. If either is missing or not co-enclosed, returns -1<<31.
+func (p *Puzzle) calculateLoveBirdsScore() int {
+	rows := len(p.MapData)
+	if rows == 0 {
+		return 0
+	}
+	cols := len(p.MapData[0])
+
+	// Find 'H' and 'U'
+	type point struct{ r, c int }
+	var hPos, uPos point
+	foundH, foundU := false, false
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			switch p.MapData[i][j] {
+			case 'H':
+				hPos, foundH = point{i, j}, true
+			case 'U':
+				uPos, foundU = point{i, j}, true
+			}
+		}
+	}
+	if !foundH || !foundU {
+		return -1 << 31
+	}
+
+	// Build a set of wall indices for fast lookup
+	wallSet := make(map[int]struct{}, len(p.walls))
+	for _, w := range p.walls {
+		wallSet[w] = struct{}{}
+	}
+
+	// Build portal map
+	isPortal := func(cell rune) bool {
+		return (cell >= '0' && cell <= '9') || (cell >= 'a' && cell <= 'z')
+	}
+	portalPositions := make(map[rune][]point)
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			cell := p.MapData[i][j]
+			if isPortal(cell) {
+				portalPositions[cell] = append(portalPositions[cell], point{i, j})
+			}
+		}
+	}
+
+	// BFS from 'H'
+	visited := make([][]bool, rows)
+	for i := range visited {
+		visited[i] = make([]bool, cols)
+	}
+	queue := []point{hPos}
+	visited[hPos.r][hPos.c] = true
+
+	directions := [][2]int{{-1, 0}, {1, 0}, {0, -1}, {0, 1}}
+	onEdge := false
+	area := []point{}
+	uEnclosed := false
+
+	for len(queue) > 0 {
+		curr := queue[0]
+		queue = queue[1:]
+		area = append(area, curr)
+
+		if curr.r == 0 || curr.r == rows-1 || curr.c == 0 || curr.c == cols-1 {
+			onEdge = true
+		}
+		if curr.r == uPos.r && curr.c == uPos.c {
+			uEnclosed = true
+		}
+
+		currCell := p.MapData[curr.r][curr.c]
+		if isPortal(currCell) {
+			for _, dest := range portalPositions[currCell] {
+				if !visited[dest.r][dest.c] {
+					visited[dest.r][dest.c] = true
+					queue = append(queue, dest)
+				}
+			}
+		}
+
+		for _, d := range directions {
+			nr, nc := curr.r+d[0], curr.c+d[1]
+			if nr >= 0 && nr < rows && nc >= 0 && nc < cols && !visited[nr][nc] {
+				idx := nr*cols + nc
+				if _, isWall := wallSet[idx]; isWall {
+					continue
+				}
+				cell := p.MapData[nr][nc]
+				if cell == '.' || cell == 'C' || cell == 'U' || isPortal(cell) {
+					visited[nr][nc] = true
+					queue = append(queue, point{nr, nc})
+				}
+			}
+		}
+	}
+
+	if onEdge || !uEnclosed {
+		return -1 << 31
+	}
+
+	score := 0
+	for _, pt := range area {
+		cell := p.MapData[pt.r][pt.c]
+		score += 1
+		if cell == 'C' { score += 3 }
+		if cell == 'S' { score -= 5 }
+		if cell == 'G' { score += 10 }
+	}
+	return score
 }
 
 // calculateCostlyWallsScore applies the base score with each wall incurring a cost of -6.
