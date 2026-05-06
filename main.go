@@ -11,6 +11,8 @@ import (
 
 func main() {
 	dateFlag := flag.String("date", "", "Date to fetch puzzle for (YYYY-MM-DD). Defaults to today.")
+	bonusFlag := flag.Bool("bonus", false, "Load the bonus level instead of the regular level.")
+	flag.BoolVar(bonusFlag, "B", false, "Load the bonus level instead of the regular level.")
 	flag.Parse()
 
 	var dateStr string
@@ -26,6 +28,19 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error fetching puzzle: %v\n", err)
 		os.Exit(1)
+	}
+
+	if *bonusFlag {
+		if puzzle.BonusType == nil {
+			fmt.Fprintln(os.Stderr, "Error: no bonus level available for this date.")
+			os.Exit(1)
+		}
+		bonusURL := fmt.Sprintf("https://enclose.horse/api/daily/bonus/%s", puzzle.ID)
+		puzzle, err = getPuzzleFromAPI(bonusURL)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error fetching bonus puzzle: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
 	puzzle.RenderMap()
@@ -77,7 +92,7 @@ func main() {
 			if err != nil {
 				fmt.Printf("Submit failed: %v\n", err)
 			} else {
-				userScore := puzzle.calculateScore()
+				userScore := puzzle.calculateBonusScore()
 				fmt.Printf("Submit successful! Your score: %d, Optimal Score: %d\n", userScore, optimalScore)
 				os.Exit(0)
 			}

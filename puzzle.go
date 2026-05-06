@@ -19,6 +19,7 @@ type Puzzle struct {
 	Name        string    `json:"name"`
 	Description *string   `json:"description"`
 	CreatorName *string   `json:"creatorName"`
+	BonusType   *string   `json:"bonusType"`
 	walls       []int
 	bestScore    int
 	bestWalls    []int
@@ -107,7 +108,7 @@ func (p *Puzzle) RenderMap() {
 		fmt.Println()
 	}
 
-	score := p.calculateScore()
+	score := p.calculateBonusScore()
 	scoreStr := fmt.Sprintf("%d", score)
 	if score == -1<<31 {
 		scoreStr = "N/A"
@@ -159,7 +160,7 @@ func (p *Puzzle) placeWall(loc string) {
 	p.walls = append(p.walls, idx)
 
 	// Calculate score and update bestScore/bestWalls if improved
-	score := p.calculateScore()
+	score := p.calculateBonusScore()
 	if score > p.bestScore || len(p.bestWalls) == 0 {
 		p.bestScore = score
 		p.bestWalls = append([]int(nil), p.walls...)
@@ -206,7 +207,7 @@ func (p *Puzzle) removeWall(loc string) {
 		}
 	}
 	// Calculate score and update bestScore/bestWalls if improved
-	score := p.calculateScore()
+	score := p.calculateBonusScore()
 	if score > p.bestScore || len(p.bestWalls) == 0 {
 		p.bestScore = score
 		p.bestWalls = append([]int(nil), p.walls...)
@@ -381,6 +382,29 @@ func (p *Puzzle) calculateScore() int {
 		if cell == 'G' { score += 10 }
 	}
 	return score
+}
+
+// calculateBonusScore dispatches to the appropriate scoring function based on BonusType.
+// If BonusType is nil or unrecognised, it falls back to calculateScore.
+func (p *Puzzle) calculateBonusScore() int {
+	if p.BonusType == nil {
+		return p.calculateScore()
+	}
+	switch *p.BonusType {
+	case "costlywalls":
+		return p.calculateCostlyWallsScore()
+	default:
+		return p.calculateScore()
+	}
+}
+
+// calculateCostlyWallsScore applies the base score with each wall incurring a cost of -6.
+func (p *Puzzle) calculateCostlyWallsScore() int {
+	base := p.calculateScore()
+	if base == -1<<31 {
+		return base
+	}
+	return base - 6*len(p.walls)
 }
 
 // ReloadBestWalls sets the current walls to the bestWalls found so far
