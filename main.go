@@ -42,6 +42,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Error fetching bonus puzzle: %v\n", err)
 			os.Exit(1)
 		}
+		puzzle.isBonus = true
 	}
 
 	puzzle.RenderMap()

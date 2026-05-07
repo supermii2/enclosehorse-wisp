@@ -23,6 +23,7 @@ type Puzzle struct {
 	walls       []int
 	bestScore    int
 	bestWalls    []int
+	isBonus      bool
 
 }
 
@@ -363,7 +364,7 @@ func (p *Puzzle) calculateScore() int {
 					continue
 				}
 				cell := p.MapData[nr][nc]
-				if cell == '.' || cell == 'C' || isPortal(cell) {
+				if cell == '.' || cell == 'C' || cell == 'G' || cell == 'S' || cell == 'U' || isPortal(cell) {
 					visited[nr][nc] = true
 					queue = append(queue, point{nr, nc})
 				}
@@ -387,9 +388,9 @@ func (p *Puzzle) calculateScore() int {
 }
 
 // calculateBonusScore dispatches to the appropriate scoring function based on BonusType.
-// If BonusType is nil or unrecognised, it falls back to calculateScore.
+// If isBonus is false or BonusType is nil, it falls back to calculateScore.
 func (p *Puzzle) calculateBonusScore() int {
-	if p.BonusType == nil {
+	if !p.isBonus || p.BonusType == nil {
 		return p.calculateScore()
 	}
 	switch *p.BonusType {
